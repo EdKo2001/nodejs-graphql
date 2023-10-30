@@ -4,7 +4,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const envSchema = zod.object({
-  PORT: zod.union([zod.string(), zod.number()]),
+  PORT: zod
+    .string()
+    .min(1)
+    .transform((value) => parseInt(value)),
+  APOLLO_PORT: zod
+    .string()
+    .min(1)
+    .transform((value) => parseInt(value)),
   JWT_SECRET: zod.string().trim().min(1),
 });
 
