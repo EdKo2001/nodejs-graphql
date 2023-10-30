@@ -1,19 +1,19 @@
 import { DataStore } from "notarealdb";
 
-interface Company {
+export interface Company {
   id: string;
   name: string;
   description: string;
 }
 
-interface Job {
+export interface Job {
   id: string;
   companyId: string;
   title: string;
   description: string;
 }
 
-interface User {
+export interface User {
   id: string;
   email: string;
   password: string;

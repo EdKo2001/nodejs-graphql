@@ -30,10 +30,10 @@ async function startServer() {
   });
 
   const { url } = await startStandaloneServer(apolloServer, {
-    listen: { port: env.APOLLO_PORT, path: "/graphql" },
+    listen: { port: env.APOLLO_PORT },
   });
 
-  console.log(`🚀  Apollo Server ready at: ${url}`);
+  console.log(`🚀  Apollo Server is running on ${url}`);
 
   app.post("/login", (req, res) => {
     const { email, password } = req.body;
@@ -62,7 +62,7 @@ async function startServer() {
   });
 
   app.listen(port, () =>
-    console.info(`Express Server started on port ${port}`)
+    console.info(`🚀  Express Server is running on http://localhost:${port}`)
   );
 }
 
