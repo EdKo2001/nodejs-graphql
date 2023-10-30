@@ -13,6 +13,13 @@ const Query = {
   companies: () => db.companies.list(),
 };
 
+const Mutation = {
+  createJob: (root: Root, { input }: { input: Job }) => {
+    const jobId = db.jobs.create(input);
+    return db.jobs.get(jobId);
+  },
+};
+
 const Job = {
   company: (job: Job) => db.companies.get(job.companyId),
 };
@@ -24,6 +31,7 @@ const Company = {
 
 const resolvers = {
   Query,
+  Mutation,
   Job,
   Company,
 };
