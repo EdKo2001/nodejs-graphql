@@ -4,7 +4,7 @@ import { Request } from "express";
 import { GraphQLError } from "graphql";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-import { User } from "../config";
+import { User, db } from "../config";
 
 import { env } from "../lib";
 
@@ -29,7 +29,7 @@ const createContext = ({ req }: { req: Request }): Context => {
   try {
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
-    const user = { id: decoded.userId };
+    const user = db.users.get(decoded.userId);
 
     return {
       user,

@@ -24,7 +24,6 @@ type Job {
 }
 
 input createJobInput {
-  id: String
   title: String
   description: String
 }

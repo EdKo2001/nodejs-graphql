@@ -31,7 +31,7 @@ const Mutation = {
         },
       });
     }
-    const jobId = db.jobs.create(input);
+    const jobId = db.jobs.create({ ...input, companyId: user.companyId });
     return db.jobs.get(jobId);
   },
 };
