@@ -1,5 +1,5 @@
 {
-  "name": "job-board-server",
+  "name": "nodejs-graphql",
   "private": true,
   "license": "MIT",
   "scripts": {
