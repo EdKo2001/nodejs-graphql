@@ -1,13 +1,13 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import fs from "fs";
 
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
-import { checkAuth } from "./utils";
+import { checkAuth, createContext } from "./utils";
 
 import { db, resolvers } from "./config";
 
@@ -31,11 +31,12 @@ async function startServer() {
 
   const { url } = await startStandaloneServer(apolloServer, {
     listen: { port: env.APOLLO_PORT },
+    context: createContext as any,
   });
 
   console.log(`🚀  Apollo Server is running on ${url}`);
 
-  app.post("/login", (req, res) => {
+  app.post("/api/login", (req, res) => {
     const { email, password } = req.body;
 
     const user = db.users.list().find((user) => user.email === email);
@@ -51,7 +52,7 @@ async function startServer() {
   });
 
   // Protect routes that require authentication
-  app.get("/protected", checkAuth, (req, res) => {
+  app.get("/api/protected", checkAuth, (req, res) => {
     res.send("Protected route - JWT authentication successful!");
   });
 

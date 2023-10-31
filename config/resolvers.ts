@@ -1,4 +1,6 @@
-import { Company, Job, db } from ".";
+import { GraphQLError } from "graphql";
+
+import { Company, Job, User, db } from ".";
 
 interface Root {}
 
@@ -14,7 +16,21 @@ const Query = {
 };
 
 const Mutation = {
-  createJob: (root: Root, { input }: { input: Job }) => {
+  createJob: (
+    root: Root,
+    { input }: { input: Job },
+    { user }: { user: User }
+  ) => {
+    // check user auth
+    if (!user) {
+      // throw Error("Unauthorized");
+      throw new GraphQLError("User is not authenticated", {
+        extensions: {
+          code: "UNAUTHENTICATED",
+          http: { status: 401 },
+        },
+      });
+    }
     const jobId = db.jobs.create(input);
     return db.jobs.get(jobId);
   },

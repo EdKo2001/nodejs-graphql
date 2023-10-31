@@ -5,8 +5,8 @@ import { env } from "../lib";
 
 const jwtSecret = env.JWT_SECRET;
 
-const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.header("Authorization");
+const checkAuth = (req: Request, res: Response, next: NextFunction) => {
+  const token = (req.header("Authorization") || "").replace(/Bearer\s?/, "");
 
   if (!token) {
     res.sendStatus(401);
@@ -26,4 +26,4 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default authenticateJWT;
+export default checkAuth;
