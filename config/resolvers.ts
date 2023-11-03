@@ -21,9 +21,8 @@ const Mutation = {
     { input }: { input: Job },
     { user }: { user: User }
   ) => {
-    // check user auth
+    // Check if the user is authenticated
     if (!user) {
-      // throw Error("Unauthorized");
       throw new GraphQLError("User is not authenticated", {
         extensions: {
           code: "UNAUTHENTICATED",
@@ -31,6 +30,7 @@ const Mutation = {
         },
       });
     }
+
     const jobId = db.jobs.create({ ...input, companyId: user.companyId });
     return db.jobs.get(jobId);
   },

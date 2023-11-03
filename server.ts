@@ -1,17 +1,13 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import fs from "fs";
+import jwt from "jsonwebtoken";
 
-import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
+import { checkAuth } from "./utils";
 
-import { checkAuth, createContext } from "./utils";
+import { db } from "./config";
 
-import { db, resolvers } from "./config";
-
-import { env } from "./lib";
+import { env, startApolloServer } from "./lib";
 
 const port = env.PORT || 9000;
 const jwtSecret = env.JWT_SECRET;
@@ -19,52 +15,34 @@ const jwtSecret = env.JWT_SECRET;
 const app = express();
 app.use(cors(), bodyParser.json());
 
-const typeDefs = fs.readFileSync("./config/schema.graphql", {
-  encoding: "utf8",
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const user = db.users.list().find((user) => user.email === email);
+
+  if (!(user && user.password === password)) {
+    return res.status(422).json({
+      message: "User is not found",
+    });
+  }
+
+  const token = jwt.sign({ userId: user.id }, jwtSecret);
+
+  res.send({ token });
 });
 
-async function startServer() {
-  const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-  });
+// Protect routes that require authentication
+app.get("/api/protected", checkAuth, (req, res) => {
+  res.send("Protected route - JWT authentication successful!");
+});
 
-  const { url } = await startStandaloneServer(apolloServer, {
-    listen: { port: env.APOLLO_PORT },
-    context: createContext as any,
-  });
+// Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
-  console.log(`🚀  Apollo Server is running on ${url}`);
-
-  app.post("/api/login", (req, res) => {
-    const { email, password } = req.body;
-
-    const user = db.users.list().find((user) => user.email === email);
-
-    if (!(user && user.password === password)) {
-      res.sendStatus(401);
-      return;
-    }
-
-    const token = jwt.sign({ userId: user.id }, jwtSecret);
-
-    res.send({ token });
-  });
-
-  // Protect routes that require authentication
-  app.get("/api/protected", checkAuth, (req, res) => {
-    res.send("Protected route - JWT authentication successful!");
-  });
-
-  // Error handling middleware
-  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
-  });
-
-  app.listen(port, () =>
-    console.info(`🚀  Express Server is running on http://localhost:${port}`)
-  );
-}
-
-startServer();
+startApolloServer();
+app.listen(port, () =>
+  console.info(`🚀 Express Server is running on http://localhost:${port}`)
+);
